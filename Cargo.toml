@@ -1,0 +1,23 @@
+[package]
+name = "gaziclient"
+version = "0.1.0"
+edition = "2021"
+description = "GaziClient - a fast Deeeep.io client"
+
+[dependencies]
+wry = { version = "0.57", features = ["devtools"] }
+tao = "0.37"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+ureq = { version = "2", default-features = false, features = ["native-tls"] }
+native-tls = "0.2"
+webview2-com = "0.39"
+windows = "0.62"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,0 +1,977 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>GaziClient Editor</title>
+<style>
+:root
+{
+	--void: #030206;
+	--ink: #0E0A12;
+	--wine: #2A152D;
+	--wine2: #3A1F3C;
+	--plum: #542240;
+	--plum2: #5B3A56;
+	--plum3: #794E6D;
+	--red: #C24545;
+	--slate: #707B89;
+	--sky: #7396D5;
+	--blue: #5A78B2;
+	--text: #F1EAF0;
+	--dim: #B7A9B6;
+}
+
+*
+{
+	box-sizing: border-box;
+}
+
+html, body
+{
+	margin: 0;
+	height: 100%;
+	background: var(--ink);
+	color: var(--text);
+	font-family: "Segoe UI", Tahoma, sans-serif;
+	font-size: 13px;
+	overflow: hidden;
+	user-select: none;
+}
+
+#app
+{
+	display: grid;
+	grid-template-rows: 34px 1fr 24px;
+	grid-template-columns: 240px 1fr;
+	grid-template-areas: "title title" "side main" "status status";
+	height: 100%;
+}
+
+#title
+{
+	grid-area: title;
+	display: flex;
+	align-items: center;
+	background: var(--void);
+	border-bottom: 2px solid var(--wine);
+}
+
+#title .logo
+{
+	width: 33px;
+	height: 33px;
+	margin: 0 6px 0 4px;
+	image-rendering: pixelated;
+}
+
+#title .name
+{
+	flex: 1;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	color: var(--dim);
+	font-size: 12px;
+}
+
+#title .name b
+{
+	color: var(--text);
+	margin-right: 8px;
+}
+
+.win
+{
+	width: 44px;
+	height: 100%;
+	border: none;
+	background: transparent;
+	color: var(--dim);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.win:hover
+{
+	background: var(--wine2);
+	color: var(--text);
+}
+
+.win.close:hover
+{
+	background: #9D4343;
+}
+
+#side
+{
+	grid-area: side;
+	background: var(--wine);
+	border-right: 2px solid var(--void);
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.side-head
+{
+	display: flex;
+	align-items: center;
+	padding: 8px 10px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 1px;
+	color: var(--dim);
+}
+
+.side-head span
+{
+	flex: 1;
+}
+
+.icon-btn
+{
+	width: 24px;
+	height: 22px;
+	border: none;
+	background: transparent;
+	color: var(--dim);
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 1;
+}
+
+.icon-btn:hover
+{
+	background: var(--plum2);
+	color: var(--text);
+}
+
+#search
+{
+	margin: 0 10px 8px 10px;
+	padding: 6px 8px;
+	background: var(--ink);
+	border: 2px solid var(--void);
+	color: var(--text);
+	outline: none;
+	font: inherit;
+}
+
+#search:focus
+{
+	border-color: var(--plum3);
+}
+
+#tree
+{
+	flex: 1;
+	overflow-y: auto;
+	scrollbar-color: var(--plum3) var(--wine);
+}
+
+.group
+{
+	padding: 6px 10px 4px 10px;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--slate);
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+.file
+{
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px 4px 18px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--text);
+}
+
+.file:hover
+{
+	background: var(--wine2);
+}
+
+.file.active
+{
+	background: var(--plum);
+}
+
+.file .dot
+{
+	width: 8px;
+	height: 8px;
+	flex: none;
+	background: #E0C060;
+}
+
+.file.readonly
+{
+	color: var(--dim);
+}
+
+.file .ext
+{
+	color: var(--sky);
+	font-size: 10px;
+	font-weight: 700;
+	flex: none;
+}
+
+#main
+{
+	grid-area: main;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+}
+
+#tabs
+{
+	display: flex;
+	height: 34px;
+	background: var(--void);
+	overflow-x: auto;
+	scrollbar-width: none;
+	flex: none;
+}
+
+.tab
+{
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 0 8px 0 12px;
+	background: var(--wine);
+	border-right: 2px solid var(--void);
+	color: var(--dim);
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.tab.active
+{
+	background: var(--ink);
+	color: var(--text);
+	box-shadow: inset 0 2px 0 var(--red);
+}
+
+.tab .x
+{
+	width: 18px;
+	height: 18px;
+	border: none;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.tab .x:hover
+{
+	background: var(--plum2);
+}
+
+.tab.dirty .x::before
+{
+	content: "\25CF";
+}
+
+.tab.dirty .x span
+{
+	display: none;
+}
+
+.tab.dirty .x:hover::before
+{
+	content: "";
+}
+
+.tab.dirty .x:hover span
+{
+	display: inline;
+}
+
+#editor
+{
+	flex: 1;
+	min-height: 0;
+}
+
+#empty
+{
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 14px;
+	color: var(--dim);
+}
+
+#empty img
+{
+	width: 99px;
+	height: 99px;
+	image-rendering: pixelated;
+	opacity: 0.8;
+}
+
+#status
+{
+	grid-area: status;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 0 10px;
+	background: var(--plum);
+	color: var(--text);
+	font-size: 12px;
+}
+
+#status .grow
+{
+	flex: 1;
+}
+
+.sbtn
+{
+	border: none;
+	background: transparent;
+	color: var(--text);
+	font: inherit;
+	cursor: pointer;
+	padding: 0 8px;
+	height: 24px;
+}
+
+.sbtn:hover
+{
+	background: var(--plum3);
+}
+
+.btn
+{
+	border: 2px solid var(--void);
+	background: var(--plum3);
+	color: var(--text);
+	font: inherit;
+	font-weight: 700;
+	padding: 6px 14px;
+	cursor: pointer;
+}
+
+.btn:hover
+{
+	background: #8E5F82;
+}
+
+#modal
+{
+	position: fixed;
+	inset: 0;
+	background: rgba(3, 2, 6, 0.6);
+	display: none;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: 90px;
+	z-index: 50;
+}
+
+#modal.open
+{
+	display: flex;
+}
+
+#modal .box
+{
+	width: 420px;
+	background: var(--wine);
+	border: 2px solid var(--void);
+	box-shadow: 0 0 0 2px var(--plum);
+	padding: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+#modal .box b
+{
+	color: #F3C9E6;
+}
+
+#modal input
+{
+	padding: 8px;
+	background: var(--ink);
+	border: 2px solid var(--void);
+	color: var(--text);
+	font: inherit;
+	outline: none;
+}
+
+#modal .row
+{
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+.edge
+{
+	position: fixed;
+	z-index: 100;
+}
+</style>
+</head>
+<body>
+<div id="app">
+	<div id="title">
+		<img class="logo" id="logo">
+		<div class="name" id="drag"><b>GaziClient Editor</b><span id="title-file"></span></div>
+		<button class="win" data-cmd="minimize" title="Minimize">&#8212;</button>
+		<button class="win" data-cmd="maximize" title="Maximize">&#9633;</button>
+		<button class="win close" data-cmd="close" title="Close">&#10005;</button>
+	</div>
+	<div id="side">
+		<div class="side-head"><span>EXPLORER</span><button class="icon-btn" id="new-btn" title="New plugin">+</button><button class="icon-btn" id="folder-btn" title="Open folder">&#128193;</button><button class="icon-btn" id="refresh-btn" title="Refresh">&#8635;</button></div>
+		<input id="search" placeholder="Search files..." spellcheck="false">
+		<div id="tree"></div>
+	</div>
+	<div id="main">
+		<div id="tabs"></div>
+		<div id="editor" style="display:none"></div>
+		<div id="empty"><img id="empty-logo"><div>Open a plugin from the explorer or create a new one.</div><button class="btn" id="empty-new">New plugin</button></div>
+	</div>
+	<div id="status">
+		<span id="st-file">Ready</span>
+		<span id="st-mode"></span>
+		<span class="grow"></span>
+		<span id="st-pos"></span>
+		<button class="sbtn" id="save-btn">Save (Ctrl+S)</button>
+		<button class="sbtn" id="reload-btn">Save &amp; reload game</button>
+	</div>
+</div>
+<div id="modal"><div class="box"><b id="modal-title">New plugin</b><input id="modal-input" spellcheck="false"><div class="row"><button class="btn" id="modal-cancel">Cancel</button><button class="btn" id="modal-ok">Create</button></div></div></div>
+<script>
+var MONACO = "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/";
+var ipcSeq = 1;
+var ipcWaiting = {};
+var files = [];
+var openTabs = [];
+var activeKey = null;
+var editor = null;
+var models = {};
+var savedText = {};
+
+function ipcCall(cmd, args)
+{
+	return new Promise(function(resolve, reject)
+	{
+		var id = ipcSeq++;
+		ipcWaiting[id] = { resolve: resolve, reject: reject };
+		window.ipc.postMessage(JSON.stringify({ id: id, cmd: cmd, args: args || {} }));
+	});
+}
+
+window.__gaziReply = function(id, ok, data)
+{
+	var waiting = ipcWaiting[id];
+	if (waiting == null)
+	{
+		return;
+	}
+	delete ipcWaiting[id];
+	if (ok)
+	{
+		waiting.resolve(data);
+	}
+	else
+	{
+		waiting.reject(data);
+	}
+};
+
+function el(tag, className, text)
+{
+	var node = document.createElement(tag);
+	if (className)
+	{
+		node.className = className;
+	}
+	if (text != null)
+	{
+		node.textContent = text;
+	}
+	return node;
+}
+
+function fileFor(key)
+{
+	for(var i = 0;i<files.length;i++)
+	{
+		if (files[i].key == key)
+		{
+			return files[i];
+		}
+	}
+	return null;
+}
+
+function displayName(file)
+{
+	if (file.source == "custom")
+	{
+		return file.key.replace("custom-plugins/", "");
+	}
+	return file.id + ".js";
+}
+
+function isDirty(key)
+{
+	return models[key] != null && models[key].getValue() != savedText[key];
+}
+
+function renderTree()
+{
+	var tree = document.getElementById("tree");
+	var query = document.getElementById("search").value.toLowerCase();
+	tree.textContent = "";
+	var groups = [["custom", "Custom plugins"], ["dev", "Dev folder (read-only)"], ["official", "Official (read-only)"]];
+	for(var g = 0;g<groups.length;g++)
+	{
+		var list = files.filter(function(f)
+		{
+			return f.source == groups[g][0] && (query == "" || (displayName(f) + " " + f.name).toLowerCase().indexOf(query) != -1);
+		});
+		if (list.length == 0)
+		{
+			continue;
+		}
+		tree.appendChild(el("div", "group", groups[g][1] + " (" + list.length + ")"));
+		for(var i = 0;i<list.length;i++)
+		{
+			(function(file)
+			{
+				var row = el("div", "file" + (file.key == activeKey ? " active" : "") + (file.source != "custom" ? " readonly" : ""));
+				row.title = file.name;
+				row.appendChild(el("span", "ext", "JS"));
+				row.appendChild(el("span", "", displayName(file)));
+				if (isDirty(file.key))
+				{
+					row.appendChild(el("span", "dot"));
+				}
+				row.onclick = function()
+				{
+					openFile(file.key);
+				};
+				tree.appendChild(row);
+			})(list[i]);
+		}
+	}
+}
+
+function renderTabs()
+{
+	var tabs = document.getElementById("tabs");
+	tabs.textContent = "";
+	for(var i = 0;i<openTabs.length;i++)
+	{
+		(function(key)
+		{
+			var file = fileFor(key);
+			if (file == null)
+			{
+				return;
+			}
+			var tab = el("div", "tab" + (key == activeKey ? " active" : "") + (isDirty(key) ? " dirty" : ""));
+			tab.appendChild(el("span", "", displayName(file) + (file.source != "custom" ? " (read-only)" : "")));
+			var x = el("button", "x");
+			x.appendChild(el("span", "", "✕"));
+			x.onclick = function(event)
+			{
+				event.stopPropagation();
+				closeTab(key);
+			};
+			tab.appendChild(x);
+			tab.onclick = function()
+			{
+				openFile(key);
+			};
+			tab.onauxclick = function(event)
+			{
+				if (event.button == 1)
+				{
+					closeTab(key);
+				}
+			};
+			tabs.appendChild(tab);
+		})(openTabs[i]);
+	}
+}
+
+function updateStatus()
+{
+	var file = activeKey ? fileFor(activeKey) : null;
+	document.getElementById("title-file").textContent = file ? " — " + displayName(file) : "";
+	document.getElementById("st-file").textContent = file ? file.name + (isDirty(activeKey) ? " • unsaved" : "") : "Ready";
+	document.getElementById("st-mode").textContent = file ? (file.source == "custom" ? "JavaScript" : "JavaScript • read-only") : "";
+	var show = file != null;
+	document.getElementById("editor").style.display = show ? "block" : "none";
+	document.getElementById("empty").style.display = show ? "none" : "flex";
+	if (show && editor != null)
+	{
+		var pos = editor.getPosition();
+		document.getElementById("st-pos").textContent = pos ? "Ln " + pos.lineNumber + ", Col " + pos.column : "";
+	}
+	else
+	{
+		document.getElementById("st-pos").textContent = "";
+	}
+}
+
+function refreshUi()
+{
+	renderTree();
+	renderTabs();
+	updateStatus();
+}
+
+function openFile(key)
+{
+	var file = fileFor(key);
+	if (file == null || editor == null)
+	{
+		return;
+	}
+	if (models[key] == null)
+	{
+		models[key] = monaco.editor.createModel(file.code, "javascript", monaco.Uri.parse("file:///" + key.replace(/[^a-zA-Z0-9_\-\/\.]/g, "_")));
+		savedText[key] = file.code;
+		models[key].onDidChangeContent(function()
+		{
+			refreshUi();
+		});
+	}
+	if (openTabs.indexOf(key) == -1)
+	{
+		openTabs.push(key);
+	}
+	activeKey = key;
+	editor.setModel(models[key]);
+	editor.updateOptions({ readOnly: file.source != "custom" });
+	refreshUi();
+	editor.focus();
+}
+
+function closeTab(key)
+{
+	if (isDirty(key) && !confirm(displayName(fileFor(key)) + " has unsaved changes. Close anyway?"))
+	{
+		return;
+	}
+	var index = openTabs.indexOf(key);
+	openTabs.splice(index, 1);
+	if (models[key] != null)
+	{
+		models[key].dispose();
+		delete models[key];
+		delete savedText[key];
+	}
+	if (activeKey == key)
+	{
+		activeKey = null;
+		if (openTabs.length>0)
+		{
+			openFile(openTabs[Math.max(0, index - 1)]);
+			return;
+		}
+		editor.setModel(null);
+	}
+	refreshUi();
+}
+
+function saveActive(reloadGame)
+{
+	if (activeKey == null)
+	{
+		return Promise.resolve();
+	}
+	var key = activeKey;
+	var file = fileFor(key);
+	if (file.source != "custom")
+	{
+		return askName("Save a copy as", file.id + "-copy.js").then(function(name)
+		{
+			if (!name)
+			{
+				return;
+			}
+			return ipcCall("save", { name: name, code: models[key].getValue(), reload: !!reloadGame }).then(function(newKey)
+			{
+				return loadFiles().then(function()
+				{
+					openFile(newKey);
+				});
+			});
+		});
+	}
+	var code = models[key].getValue();
+	return ipcCall("save", { name: key.replace("custom-plugins/", ""), code: code, reload: !!reloadGame }).then(function()
+	{
+		savedText[key] = code;
+		file.code = code;
+		refreshUi();
+	}, function(error)
+	{
+		alert("Save failed: " + error);
+	});
+}
+
+var modalResolve = null;
+
+function askName(title, value)
+{
+	document.getElementById("modal-title").textContent = title;
+	var input = document.getElementById("modal-input");
+	input.value = value;
+	document.getElementById("modal").classList.add("open");
+	input.focus();
+	input.setSelectionRange(0, value.replace(/\.js$/, "").length);
+	return new Promise(function(resolve)
+	{
+		modalResolve = resolve;
+	});
+}
+
+function closeModal(value)
+{
+	document.getElementById("modal").classList.remove("open");
+	if (modalResolve != null)
+	{
+		var resolve = modalResolve;
+		modalResolve = null;
+		resolve(value);
+	}
+}
+
+function newPlugin()
+{
+	askName("New plugin file name", "myplugin.js").then(function(name)
+	{
+		if (!name)
+		{
+			return;
+		}
+		var id = name.replace(/\.js$/, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+		var code = "// @name " + id + "\n// @id " + id + "\n// @description \n// @author \n// @tags \n\nvar game = null;\n\nblockyfish.addEventListener(\"gameInit\", function(event)\n{\n\tgame = event.game;\n});\n";
+		ipcCall("save", { name: name, code: code, reload: false }).then(function(key)
+		{
+			loadFiles().then(function()
+			{
+				openFile(key);
+			});
+		}, function(error)
+		{
+			alert("Could not create: " + error);
+		});
+	});
+}
+
+function loadFiles()
+{
+	return ipcCall("list").then(function(list)
+	{
+		files = list;
+		openTabs = openTabs.filter(function(key)
+		{
+			return fileFor(key) != null;
+		});
+		if (activeKey != null && fileFor(activeKey) == null)
+		{
+			activeKey = null;
+		}
+		refreshUi();
+	});
+}
+
+function setupMonaco(typings)
+{
+	window.MonacoEnvironment =
+	{
+		getWorkerUrl: function()
+		{
+			return "data:text/javascript;charset=utf-8," + encodeURIComponent("self.MonacoEnvironment={baseUrl:'" + MONACO + "'};importScripts('" + MONACO + "vs/base/worker/workerMain.js');");
+		}
+	};
+	var loader = document.createElement("script");
+	loader.src = MONACO + "vs/loader.js";
+	loader.onload = function()
+	{
+		require.config({ paths: { vs: MONACO + "vs" } });
+		require(["vs/editor/editor.main"], function()
+		{
+			monaco.editor.defineTheme("gazi",
+			{
+				base: "vs-dark",
+				inherit: true,
+				rules:
+				[
+					{ token: "comment", foreground: "8A7A8C", fontStyle: "italic" },
+					{ token: "keyword", foreground: "E07A7A" },
+					{ token: "string", foreground: "A9C99A" },
+					{ token: "number", foreground: "E0B070" },
+					{ token: "identifier", foreground: "E8DDE6" },
+					{ token: "delimiter", foreground: "B7A9B6" },
+					{ token: "type", foreground: "7FA6E0" }
+				],
+				colors:
+				{
+					"editor.background": "#0E0A12",
+					"editor.foreground": "#F1EAF0",
+					"editorLineNumber.foreground": "#5B3A56",
+					"editorLineNumber.activeForeground": "#C9A8C2",
+					"editor.lineHighlightBackground": "#1A121F",
+					"editor.selectionBackground": "#542240AA",
+					"editorCursor.foreground": "#C24545",
+					"editorIndentGuide.background1": "#2A152D",
+					"editorWidget.background": "#2A152D",
+					"editorSuggestWidget.background": "#2A152D",
+					"editorSuggestWidget.selectedBackground": "#542240",
+					"scrollbarSlider.background": "#794E6D66",
+					"minimap.background": "#0E0A12"
+				}
+			});
+			var js = monaco.languages.typescript.javascriptDefaults;
+			js.setCompilerOptions({ allowNonTsExtensions: true, target: monaco.languages.typescript.ScriptTarget.ES2020, checkJs: false, noLib: false });
+			js.setDiagnosticsOptions({ noSemanticValidation: true, noSyntaxValidation: false });
+			js.addExtraLib(typings, "file:///blockyfish.d.ts");
+			editor = monaco.editor.create(document.getElementById("editor"),
+			{
+				theme: "gazi",
+				automaticLayout: true,
+				fontFamily: "Cascadia Mono, Consolas, monospace",
+				fontSize: 14,
+				tabSize: 2,
+				insertSpaces: true,
+				minimap: { enabled: true },
+				smoothScrolling: true,
+				cursorBlinking: "smooth",
+				bracketPairColorization: { enabled: true },
+				model: null
+			});
+			editor.onDidChangeCursorPosition(updateStatus);
+			editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function()
+			{
+				saveActive(false);
+			});
+			editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyS, function()
+			{
+				saveActive(true);
+			});
+			loadFiles();
+		});
+	};
+	document.head.appendChild(loader);
+}
+
+document.querySelectorAll(".win").forEach(function(button)
+{
+	button.onclick = function()
+	{
+		if (button.dataset.cmd == "close")
+		{
+			var dirty = openTabs.some(isDirty);
+			if (dirty && !confirm("You have unsaved changes. Close the editor?"))
+			{
+				return;
+			}
+		}
+		ipcCall(button.dataset.cmd);
+	};
+});
+
+document.getElementById("drag").addEventListener("mousedown", function(event)
+{
+	if (event.button == 0)
+	{
+		ipcCall("drag");
+	}
+});
+
+document.getElementById("drag").addEventListener("dblclick", function()
+{
+	ipcCall("maximize");
+});
+
+var edges = [["n", "top:0;left:6px;right:6px;height:4px;cursor:n-resize"], ["s", "bottom:0;left:6px;right:6px;height:4px;cursor:s-resize"], ["e", "right:0;top:6px;bottom:6px;width:4px;cursor:e-resize"], ["w", "left:0;top:6px;bottom:6px;width:4px;cursor:w-resize"], ["ne", "top:0;right:0;width:6px;height:6px;cursor:ne-resize"], ["nw", "top:0;left:0;width:6px;height:6px;cursor:nw-resize"], ["se", "bottom:0;right:0;width:6px;height:6px;cursor:se-resize"], ["sw", "bottom:0;left:0;width:6px;height:6px;cursor:sw-resize"]];
+for(var i = 0;i<edges.length;i++)
+{
+	(function(edge)
+	{
+		var node = el("div", "edge");
+		node.style.cssText = edge[1];
+		node.addEventListener("mousedown", function(event)
+		{
+			if (event.button == 0)
+			{
+				event.preventDefault();
+				ipcCall("resize", { dir: edge[0] });
+			}
+		});
+		document.body.appendChild(node);
+	})(edges[i]);
+}
+
+document.getElementById("search").oninput = renderTree;
+document.getElementById("new-btn").onclick = newPlugin;
+document.getElementById("empty-new").onclick = newPlugin;
+document.getElementById("folder-btn").onclick = function()
+{
+	ipcCall("openFolder");
+};
+document.getElementById("refresh-btn").onclick = loadFiles;
+document.getElementById("save-btn").onclick = function()
+{
+	saveActive(false);
+};
+document.getElementById("reload-btn").onclick = function()
+{
+	saveActive(true);
+};
+document.getElementById("modal-cancel").onclick = function()
+{
+	closeModal(null);
+};
+document.getElementById("modal-ok").onclick = function()
+{
+	closeModal(document.getElementById("modal-input").value.trim());
+};
+document.getElementById("modal-input").addEventListener("keydown", function(event)
+{
+	if (event.key == "Enter")
+	{
+		closeModal(event.target.value.trim());
+	}
+	if (event.key == "Escape")
+	{
+		closeModal(null);
+	}
+});
+
+ipcCall("init").then(function(data)
+{
+	document.getElementById("logo").src = data.logo;
+	document.getElementById("empty-logo").src = data.logo;
+	setupMonaco(data.typings);
+});
+</script>
+</body>
+</html>
