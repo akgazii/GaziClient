@@ -8,7 +8,7 @@
 6. PIXI classes are taken from live objects (stage tree, batch renderer) on first use.
 7. Storage format is identical to Blockyfish `plugin-data.json` (keys `official-plugins/<id>.js`, `custom-plugins/<file>.js`), so Blockyfish data imports with a straight copy.
 8. Disk writes are batched: the runtime debounces per plugin (400 ms), Rust flushes dirty state every 1.5 s and on exit, atomic rename.
-9. Registry updates download in parallel (8 workers) and only when the version changed. Several registries supported; a local dev folder (`registry.json` + files) overrides them. (Currently both are off in the user's config: only custom plugins are used.)
+9. Registry updates download in parallel (8 workers) and only when the version changed. Several registries supported; a local dev folder (`registry.json` + files) overrides them. Official Blockyfish plugins and the user's custom plugins are both loaded. Config v2 migration (`configVersion`) puts the default registry back once if the list is empty and turns auto update on.
 10. `plugin.saveFile` writes real files (Documents\GaziClient\<folder>) instead of browser downloads.
 11. Data lives in `%APPDATA%\GaziClient` (config.json, plugin-data.json, plugins\official, plugins\custom, backgrounds, webview profile, backup-* folders).
 12. `GAZI_DEBUG_PORT=<port>` env var enables the WebView2 remote debugging port for testing. Every WebView must get the same browser args, or WebView2 refuses to create it.
@@ -20,9 +20,12 @@
 18. Plugin editor: separate frameless window with Monaco 0.52.2 from jsDelivr (not bundled), Blockyfish typings (`runtime/editor/blockyfish.d.ts`) for autocomplete, Ctrl+S save, Ctrl+Shift+S save and reload game.
 19. Home backgrounds: images in `%APPDATA%\GaziClient\backgrounds` rotate randomly every `backgroundInterval` seconds (default 10) with a 1.5 s crossfade (two layers inside `.home-bg`). `backgroundUrls` (default: the user's 20 wallhaven links, `src/backgrounds.rs`) are downloaded on start if missing, resized to max 1920 px. No images = site default.
 20. Animal pictures: `https://deeeep.io/assets/characters/<name>.png`, names from `https://api.deeeep.io/animals` (`fishLevelsData` has no names).
+21. News panel: `runtime/announcements.json` (built into the exe) merged with an optional remote feed (`announcementsUrl`, https only, JSON list of `{id,date,title,body,tag,pinned}`, cached in `%APPDATA%\GaziClient\announcements.json`, refetched on every start). Remote wins on equal ids; pinned first, then newest. Read ids are kept in `announcementsSeen` (last 300). Unread = red dot on the News tab and one toast per start. Text only, no HTML. The feed URL is not in the menu (players should not see admin settings); it is set in config.json and should default to GaziClient's own feed once it is hosted.
+22. Startup: the window has the same dark background as the page (no white flash) and the WebView opens on a small splash page (logo + bar, preconnect to deeeep.io) that replaces itself with the game. Chromium's own DNS resolver took ~1 s on every cold start, so `AsyncDns,DnsOverHttps` are disabled and the system resolver is used: home page ready went from ~3.1 s to ~1.7 s after launch.
+23. Menu opacity: `menuOpacity` (0.3-1.0) sets `--gz-menu-opacity` on the menu; the panel fades as a whole (its fill is the frame image, so the background can't fade alone) and the backdrop dim scales with it.
 
 ## Not done yet
 
 - Discord Rich Presence
-- FPS counter, announcements panel
+- FPS counter
 - Exe icon resource and installer

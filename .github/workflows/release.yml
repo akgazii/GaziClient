@@ -1,0 +1,57 @@
+# Push a tag like v0.1.0 and GitHub builds the exe (and the apk, if the signing key secrets are set)
+# from this exact source and attaches them to a release, with SHA-256 hashes so anyone can check
+# that the download matches what was built here.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      HAS_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build exe
+        run: cargo build --release
+
+      - name: Build apk
+        if: env.HAS_KEY == 'true'
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        shell: pwsh
+        run: |
+          $dir = "$env:USERPROFILE\.gaziclient"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          [IO.File]::WriteAllBytes("$dir\release.keystore", [Convert]::FromBase64String($env:KEYSTORE))
+          Set-Content -Path "$dir\keystore-password.txt" -Value $env:KEYSTORE_PASSWORD -NoNewline -Encoding ascii
+          & "$env:ANDROID_HOME\cmdline-tools\latest\bin\sdkmanager.bat" "platforms;android-34" "build-tools;34.0.0" | Out-Null
+          ./android/build.ps1
+
+      - name: Collect files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item target/release/gaziclient.exe dist/GaziClient.exe
+          Get-ChildItem android -Filter "GaziClient-*.apk" -ErrorAction SilentlyContinue | Copy-Item -Destination dist/
+          Get-ChildItem dist | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content dist/SHA256SUMS.txt
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
