@@ -35,10 +35,12 @@ predict strike aiming at a shark (the yellow ring is where it will be), with kil
 
 ## download
 
-go to [releases](../../releases) and get:
+website: https://akgazii.github.io/GaziClient
+
+or go to [releases](../../releases) and get:
 
 - `GaziClient.exe` for windows 10/11. no installer, just run it. it uses webview2 which windows already has
-- `GaziClient-x.x.x.apk` for android. you need to allow "install unknown apps" for your browser or file manager
+- `GaziClient.apk` for android. you need to allow "install unknown apps" for your browser or file manager
 
 windows might show a smartscreen warning the first time because the exe isnt signed with a paid certificate. click "more info" then "run anyway". if you dont trust it, read the next part.
 

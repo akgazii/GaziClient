@@ -34,6 +34,7 @@ jobs:
         run: |
           $dir = "$env:USERPROFILE\.gaziclient"
           New-Item -ItemType Directory -Force $dir | Out-Null
+          $env:JAVA_HOME = $env:JAVA_HOME_17_X64
           [IO.File]::WriteAllBytes("$dir\release.keystore", [Convert]::FromBase64String($env:KEYSTORE))
           Set-Content -Path "$dir\keystore-password.txt" -Value $env:KEYSTORE_PASSWORD -NoNewline -Encoding ascii
           & "$env:ANDROID_HOME\cmdline-tools\latest\bin\sdkmanager.bat" "platforms;android-34" "build-tools;34.0.0" | Out-Null
@@ -44,7 +45,8 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
           Copy-Item target/release/gaziclient.exe dist/GaziClient.exe
-          Get-ChildItem android -Filter "GaziClient-*.apk" -ErrorAction SilentlyContinue | Copy-Item -Destination dist/
+          # fixed names, so .../releases/latest/download/GaziClient.apk always works (the website links there)
+          Get-ChildItem android -Filter "GaziClient-*.apk" -ErrorAction SilentlyContinue | Select-Object -First 1 | Copy-Item -Destination dist/GaziClient.apk
           Get-ChildItem dist | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content dist/SHA256SUMS.txt
 
       - uses: actions/attest-build-provenance@v2
