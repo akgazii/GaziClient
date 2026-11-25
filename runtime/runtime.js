@@ -1664,6 +1664,8 @@ var trText =
 	"Made by Akgazi": "Akgazi tarafından yapıldı", 
 	"Contact: Discord akgazii": "İletişim: Discord akgazii",  
 	"Changelog": "Güncelleme notları",
+	"Fixed Auto dodge, Auto play, Predict strike and Thresher kit not working after you turn them off and on again": "Auto dodge, Auto play, Predict strike ve Thresher kit kapatıp tekrar açınca çalışmıyordu, düzeltildi",
+	"For plugin makers: a Claude Code skill with a plugin template, a game reference and a plugin checker (.claude/skills on GitHub)": "Plugin yapanlar için: plugin şablonu, oyun rehberi ve plugin kontrolcüsü olan bir Claude Code skill'i (GitHub'da .claude/skills)",
 	"Fresh start!": "Temiz bir başlangıç!", 
 	"ⓘ About GaziClient": "ⓘ GaziClient Hakkında", 
 	"Press a key...": "Bir tuşa bas...",  
@@ -3256,6 +3258,8 @@ function renderClientTab(body)
 // Newest first. Add a line here for every release.
 var gaziChangelog =
 [
+	{ version: "v0.1.1", text: "Fixed Auto dodge, Auto play, Predict strike and Thresher kit not working after you turn them off and on again" },
+	{ version: "v0.1.1", text: "For plugin makers: a Claude Code skill with a plugin template, a game reference and a plugin checker (.claude/skills on GitHub)" },
 	{ version: "v0.1.0", text: "Fresh start!" }  
 ]; 
 

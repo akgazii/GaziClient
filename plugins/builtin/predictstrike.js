@@ -100,14 +100,17 @@ function aiming()
   return aimPoint!=null && performance.now()<aimUntil; 
 } 
 
+// Kept here, not on im: after an off/on the hooks are gone but a mark on im would stay.
+var hookedInputs = new WeakSet();
+
 function hookInput() 
 {  
   var im = game.inputManager; 
-  if (im==null || im.strikeHooked)  
+  if (im==null || hookedInputs.has(im))  
   {  
     return; 
   }  
-  im.strikeHooked = true; 
+  hookedInputs.add(im); 
 
   hook(im, "sendMoveToXY",  
   {  

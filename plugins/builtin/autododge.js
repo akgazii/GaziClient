@@ -208,14 +208,17 @@ function dodging()
   return dodgePoint!=null && performance.now()<dodgeUntil;  
 }  
 
+// Kept here, not on im: after an off/on the hooks are gone but a mark on im would stay.
+var hookedInputs = new WeakSet();
+
 function hookInput()  
 {
   var im = game.inputManager;  
-  if (im==null || im.dodgeHooked)
+  if (im==null || hookedInputs.has(im))
   {
     return; 
   }  
-  im.dodgeHooked = true; 
+  hookedInputs.add(im); 
 
   hook(im, "sendMoveToXY", 
   {  
