@@ -82,6 +82,25 @@ powershell -ExecutionPolicy Bypass -File android\build.ps1
 
 it builds the exe first and takes the runtime and plugins from it, so desktop and mobile always have the same code. the first run makes a signing key in `%USERPROFILE%\.gaziclient`, back that folder up.
 
+## make your own plugins
+
+theres a claude code skill in `.claude/skills/gaziclient-dev` for anyone who wants to make plugins or work on the client. clone the repo, open claude code in the folder and it already knows how everything works, so you dont have to explain the whole client to it.
+
+whats inside:
+
+- `SKILL.md` the full guide. building, the plugin api, how turning plugins on and off live works, debugging, adding a plugin to the client
+- `template.js` a ready plugin to start from, with a toggle key, a setting and safe hooks
+- `game-reference.md` the game stuff plugins use, like animals, health, xp, minimap, walls, packets and the deeeep.io api
+- `check-plugin.js` checks your plugin for mistakes before you even open the game:
+
+```
+node .claude/skills/gaziclient-dev/check-plugin.js myplugin.js
+```
+
+no claude code? you can still read the guide and use the template and the checker yourself.
+
+quickest way to try something: copy `template.js` to `%APPDATA%\GaziClient\plugins\custom\`, turn it on in the Custom tab and edit it. it updates live, no rebuild needed. if you make something good send a pull request
+
 ## blockyfish plugins
 
 the 29 plugins in `plugins/blockyfish/` are made by the blockyfish devs, not me. they are included so they keep working in GaziClient, they are not under my license and all credit goes to them. thanks blockyfish
