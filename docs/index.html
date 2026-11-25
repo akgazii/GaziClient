@@ -195,6 +195,20 @@ html.mobile a.alt { justify-content: center; }
 html.mobile .only-desktop { display: none; }
 html.mobile p.only-mobile { display: block; }
 
+.downloads
+{
+	margin: 14px 0 0;
+	padding: 4px 14px;
+	font-size: 14px;
+	color: var(--dim);
+}
+
+.downloads b
+{
+	color: var(--text);
+	font-size: 16px;
+}
+
 /* ---- sections ---- */
 section
 {
@@ -372,6 +386,7 @@ footer .author img
 		<p class="note only-mobile">Android 7.0+ · allow "install unknown apps" when your phone asks</p>
 		<a class="alt only-mobile" href="https://github.com/akgazii/GaziClient/releases/latest/download/GaziClient.exe">need the Windows version? download the exe</a>
 	</div>
+	<p class="downloads frame f-wine"><b id="dl-count">5</b> downloads</p>
 </header>
 
 <main class="wrap">
@@ -435,6 +450,22 @@ footer .author img
 	<div>Not made by or affiliated with Deeeep.io. Some plugins play or dodge for you; using them can get you banned.</div>
 	<div>GPL-3.0 with attribution · Blockyfish plugins belong to their authors</div>
 </footer>
+
+<script>
+	// exe + apk downloads over all releases, minus the 3 test downloads made before launch
+	const DL_OFFSET = 3;
+	fetch("https://api.github.com/repos/akgazii/GaziClient/releases?per_page=100")
+		.then(r => r.ok ? r.json() : Promise.reject())
+		.then(releases =>
+		{
+			let n = 0;
+			for (const rel of releases)
+				for (const a of rel.assets)
+					if (/\.(exe|apk)$/i.test(a.name)) n += a.download_count;
+			document.getElementById("dl-count").textContent = Math.max(5, n - DL_OFFSET).toLocaleString("en-US");
+		})
+		.catch(() => {});
+</script>
 
 </body>
 </html>
